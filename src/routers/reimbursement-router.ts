@@ -1,11 +1,11 @@
 import express from 'express'
 import { getRByStatus, getRByUser, submitR } from '../services/reimbursement-service'
 import { Reimbursement } from '../models/reimbursement'
-import { reimbursements } from '../database'
+import { authorization } from '../middleware/authentication'
 
 export const reimbursementRouter = express.Router()
 
-reimbursementRouter.get('/status/:statusId', (req, res)=>{
+reimbursementRouter.get('/status/:statusId', [authorization(['Admin', 'Finance-manager'])], (req, res)=>{
     let id = +req.params.id
     if(isNaN(id)){
         res.status(400).send(`Please enter a valid Status id`)
@@ -19,7 +19,7 @@ reimbursementRouter.get('/status/:statusId', (req, res)=>{
     }
 })
 
-reimbursementRouter.get('/author/userId/:userId', (req, res)=>{
+reimbursementRouter.get('/author/userId/:userId', [authorization(['Admin', 'Finance-manager'])], (req, res)=>{
     let id = +req.params.id
     if(isNaN(id)){
         res.status(400).send(`Please enter a valid User id`)

@@ -1,10 +1,11 @@
 import express from 'express'
 import { getAllUsers, getUserById, updateUser, updateR } from '../services/user-service'
 import { reimbursements } from '../database'
+import { authorization } from '../middleware/authentication'
 
 export const userRouter = express.Router()
 
-userRouter.get('', (req, res)=>{
+userRouter.get('', [authorization(['Admin', 'Finance-manager'])], (req, res)=>{
     let users = getAllUsers()
     if(users){
         res.json(users)
@@ -13,10 +14,10 @@ userRouter.get('', (req, res)=>{
     }
 })
 
-userRouter.get('/:id', (req, res)=>{
+userRouter.get('/:id', [authorization(['Admin', 'Finanace-manager'])], (req, res)=>{
     let id = +req.params.id
     if(isNaN(id)){
-        res.status(400).send(`Please enter a user id`)
+        res.status(400).send(`Invalid user id`)
     }else{
         try{
             let user = getUserById(id)
@@ -27,14 +28,13 @@ userRouter.get('/:id', (req, res)=>{
     }
 })
 
-userRouter.patch('', (req, res)=>{
+userRouter.patch('', [authorization(['Admin'])], (req, res)=>{
     let id = +req.params.id
     if(isNaN(id)){
         res.status(400).send(`Please enter a valid user id`)
     }else{
-        let {body} = req
         try{
-            let user = updateUser(id, body[0], body[1])
+            let user = updateUser(id)
             res.json(user)
         }catch(e){
             res.status(e.status).send(e.message)
@@ -42,7 +42,7 @@ userRouter.patch('', (req, res)=>{
     }
 })
 
-userRouter.patch(':/id', (req, res)=>{
+userRouter.patch('', [authorization(['Admin', 'Finance-manager'])], (req, res)=>{
     let id = +req.params.id
     let reimbursement = req.session.user
     try{

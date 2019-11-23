@@ -7,7 +7,7 @@ export function getEmployeeLogin(username:string, password:string){
     return daoGetUserLogin(username, password)
 }
 
-export function getAllUsers():User[]{
+export function getAllUsers():Promise<User[]>{
     return daoGetAllUsers()
 }
 
@@ -15,8 +15,11 @@ export function getUserById(id:number):User[]{
     return daoGetUserById(id)
 }
 
-export function updateUser(id:number, field:string, update:string):User{
-    return daoUpdateUser(id, field, update)
+export function updateUser(id:number):User{
+    let user = daoGetUserById(id)
+    let single = user[0]
+    daoUpdateUser(single)
+    return single
 }
 
 export function updateR(id:number, r:Reimbursement){

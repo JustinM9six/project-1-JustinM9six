@@ -1,21 +1,53 @@
-import { Reimbursement } from "../models/reimbursement";
 import { users } from "../database";
 import { User } from "../models/user";
+import { connectionPool } from ".";
+import { PoolClient } from "pg";
+import { multiUserDTOtoUser } from "../util/User-to-Object";
 
-export function daoGetUserLogin(username:string, password:string){
-    for(let u of users){
-        if(u.username === username && u.password === password){
-            return u
+export async function daoGetUserLogin(username:string, password:string){
+    let client: PoolClient;
+    try{
+        client = await connectionPool.connect();
+        const result = await client.query('SELECT * FROM Project_0.user natural join Project_0.user_roles naturla join Project_0.roles WHERE username = $1 AND password = $2',
+        [username, password]);
+        if (result.rowCount === 0) {
+            throw 'Bad credentials';
+        } else {
+            return 
         }
-    }
-    throw{
-        status: 400,
-        message: `Invalid Credentials`
+    } catch (e) {
+        console.log(e);
+        if(e === 'Bad credentials') {
+            throw {
+                status: 401,
+                message: 'Bad credentials'
+            };
+        } else {
+            throw {
+                status: 500,
+                message: 'Internal Server Error'
+            };
+        }
+    } finally {
+        client && client.release();
     }
 }
 
-export function daoGetAllUsers():User[]{
-    return users
+export async function daoGetAllUsers():Promise<User[]>{
+    let client:PoolClient
+    try{
+        client = await connectionPool.connect()
+        let result = await client.query('SELECT * FROM Project_0.user natural join Project_0.user_role natural join Project_0.role')
+        return multiUserDTOtoUser(result.rows);
+    } catch (e) {
+        console.log(e);
+        throw {
+            status: 500,
+            message: 'Internal Server Error'
+        };
+    } finally {
+        client && client.release();
+    }
 }
 
 export function daoGetUserById(id:number):User[]{
@@ -30,30 +62,13 @@ export function daoGetUserById(id:number):User[]{
     if(u.length === 0){        
         throw{
             status: 404,
-            message: `There are no user with this id`
+            message: `There are no users with this id`
         }
     }else{
         return u
     }
 }
 
-export function daoUpdateUser(id:number, field:string, update:string):User{
-    for(let u of users){
-        if(u.userId === id){
-            for(let key in u){
-                if(u[key] === field){
-                    u[key] = field
-                    return u
-                }
-            }
-            throw{
-                status: 404,
-                message: 'Field not found'
-            }
-        }
-    }
-    throw{
-        status: 404,
-        message: 'User not found'
-    }
+export function daoUpdateUser(find:User):User{
+    return null
 }
