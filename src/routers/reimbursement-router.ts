@@ -2,6 +2,7 @@ import express from 'express'
 import { getRByStatus, getRByUser, submitR } from '../services/reimbursement-service'
 import { Reimbursement } from '../models/reimbursement'
 import { authorization } from '../middleware/authentication'
+import { updateR } from '../services/user-service'
 
 export const reimbursementRouter = express.Router()
 
@@ -33,9 +34,9 @@ reimbursementRouter.get('/author/userId/:userId', [authorization(['Admin', 'Fina
     }
 })
 
-reimbursementRouter.post('', [authorization(['Admin', 'Finance-manager', 'User'])], (req, res)=>{
+reimbursementRouter.post('', [authorization(['Admin', 'Finance-manager', 'User'])], async (req, res)=>{
     let{body} = req
-    let{author} = body
+    //let{author} = body
     let newR = new Reimbursement(0, 0, 0, 0, 0, ``, 0, 0, 0)
     for(let key in newR){
         if(body[key] === undefined){
@@ -45,22 +46,44 @@ reimbursementRouter.post('', [authorization(['Admin', 'Finance-manager', 'User']
             newR[key] = body[key]
         }
     }
-    if(!author){
-        res.status(400).send(`Please include all reimbursement fields`)
+    // if(!author){
+    //     res.status(400).send(`Please include all reimbursement fields`)
+    // }
+    // for(let key in newR[`user`]){
+    //     if(author[key] === undefined){
+    //         res.status(400).send(`Please include all reimbursement fields`)
+    //         break;
+    //     }else{
+    //         newR[`user`][key] = author[key]
+    //     }
+    // }
+    try{
+        let result = await submitR(newR)
+        if(result){
+            res.status(201).json(result)
+        }
+    }catch(e){
+        res.status(e.status).send(e.message)
     }
-    for(let key in newR[`user`]){
-        if(author[key] === undefined){
-            res.status(400).send(`Please include all reimbursement fields`)
-            break;
-        }else{
-            newR[`user`][key] = author[key]
+})
+
+reimbursementRouter.patch('/:id', [authorization(['Admin', 'Finance-manager'])], async (req, res)=>{
+    let id = +req.params.id
+    const { body } = req;
+    if(isNaN(id)) {
+        res.status(400).send(`Please enter a valid reimbursement id`)
+    }
+    const reimburse = new Reimbursement(0, 0, 0 ,0, 0, ``, 0, 0, 0);
+    for (const key in reimburse) {
+        if (body[key] === undefined) {
+            reimburse[key] = undefined;
+        } else {
+            reimburse[key] = body[key];
         }
     }
     try{
-        let result = submitR(newR)
-        if(result){
-            res.sendStatus(201)
-        }
+        const result = await updateR(id, reimburse)
+        res.status(201).json(result)
     }catch(e){
         res.status(e.status).send(e.message)
     }

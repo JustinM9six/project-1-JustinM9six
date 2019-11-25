@@ -70,22 +70,25 @@ export async function daoGetUserById(id:number):Promise<User[]>{
     }
 }
 
-export async function daoUpdateUser(find:User, id:number):Promise<User>{
+export async function daoUpdateUser(id: number, u:User):Promise<User>{
     let client: PoolClient
-    let result
+    client = await connectionPool.connect();
     try {
-        client = await connectionPool.connect();
-        for(const key in find){
-            if (find[key] === undefined){
-                //let temp = await client.query(`SELECT $1 FROM project_0.reimbursement WHERE reimbursementId = $2`, [Object.keys(find[key]), id]);
-                //let result = await client.query(`UPDATE project_0.reimbursement SET $1 WHERE reimbursementId = $2`, [temp, id]);
-            } else {
-                result = await client.query(`UPDATE project_0.reimbursement SET $1 WHERE reimbursementId = $2`, [find[key], id]);
+        const temp = await client.query(`SELECT * FROM project_0.user WHERE user_id = $1;`, [id])
+        const tempUser = userDTOtoUser(temp.rows)
+        for(const key in u){
+            if (u[key] === undefined){
+                u[key] = tempUser[key]
             }
         }
-        return result
+        await client.query(`update project_0.user SET user_id = $1, username = $2, 
+        "password" = $3, first_name = $4, last_name = $5, email = $6 WHERE user_id = $7`, 
+        [u.user_id, u.username, u.password, u.first_name, u.last_name, u.email, id])
+        return u
     } catch (e) {
-        throw {
+        console.log(e);
+        
+        throw {            
             status: 500,
             message: `Internal Server Error`
         }

@@ -19,17 +19,18 @@ export async function getUserById(id: number): Promise<User[]> {
     return daoGetUserById(id)
 }
 
-export async function updateUser(id: number): Promise<User> {
+export async function updateUser(id: number, u: User): Promise<User> {
     try {
-        let user = await daoGetUserById(id)
-        let single = user[0]
-        daoUpdateUser(single, id)
-        return single
+        return daoUpdateUser(id, u)
     } catch (e) {
         throw e;
     }
 }
 
-export function updateR(id: number, r: Reimbursement) {
-    return doaUpdateR(id, r)
+export async function updateR(id: number, r: Reimbursement) {
+    try {
+        return await doaUpdateR(id, r)
+    } catch (e) {
+        throw e;
+    }
 }

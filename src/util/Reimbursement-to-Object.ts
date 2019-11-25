@@ -10,7 +10,7 @@ export function reimburseDTOtoReimburse(rDTO: ReimbursementDTO[]): Reimbursement
     for (const r of rDTO) {
         type.push(r.type);
     }
-    return new Reimbursement(rDTO[0].reimbursementId, rDTO[0].author, rDTO[0].amount, rDTO[0].dateSubmitted, rDTO[0].dateResolved, rDTO[0].description, rDTO[0].resolver, status[0], type[0]);
+    return new Reimbursement(rDTO[0].reimbursement_id, rDTO[0].author, rDTO[0].amount, rDTO[0].date_submitted, rDTO[0].date_resolved, rDTO[0].description, rDTO[0].resolver, status[0], type[0]);
 }
 
 export function multireimburseDTOtoReimburse(rDTO: ReimbursementDTO[]): Reimbursement[] {
@@ -19,7 +19,7 @@ export function multireimburseDTOtoReimburse(rDTO: ReimbursementDTO[]): Reimburs
     for (const r of rDTO) {
         if(currentReimbursement.length === 0) {
             currentReimbursement.push(r);
-        } else if (currentReimbursement[0].reimbursementId === r.reimbursementId) {
+        } else if (currentReimbursement[0].reimbursement_id === r.reimbursement_id) {
             currentReimbursement.push(r);
         } else {
             result.push(reimburseDTOtoReimburse(currentReimbursement));
