@@ -1,13 +1,13 @@
-import express from 'express'
-import bodyparser from 'body-parser'
+import express from 'express';
+import bodyparser from 'body-parser';
 import { getEmployeeLogin } from './services/user-service';
 import { userRouter } from './routers/user-router';
 import { reimbursementRouter } from './routers/reimbursement-router';
 import { sessionMiddleware } from './middleware/session';
 
 const app = express();
-app.use(bodyparser.json)
-app.use(sessionMiddleware)
+app.use(bodyparser.json());
+app.use(sessionMiddleware);
 
 app.post(`/login`, async (req, res)=>{
     let {username, password} = req.body

@@ -1,29 +1,35 @@
 import { Reimbursement } from "../models/reimbursement";
-import {daoGetUserLogin, daoGetAllUsers, daoGetUserById, daoUpdateUser } from "../repositories/user-dao";
+import { daoGetUserLogin, daoGetAllUsers, daoGetUserById, daoUpdateUser } from "../repositories/user-dao";
 import { User } from "../models/user";
-import { daoFindRById, doaUpdateR } from "../repositories/reimbursement-dao";
+import { doaUpdateR } from "../repositories/reimbursement-dao";
 
-export function getEmployeeLogin(username:string, password:string){
+export function getEmployeeLogin(username: string, password: string) {
     return daoGetUserLogin(username, password)
 }
 
-export function getAllUsers():Promise<User[]>{
-    return daoGetAllUsers()
+export async function getAllUsers(): Promise<User[]> {
+    try {
+        return await daoGetAllUsers();
+    } catch (e) {
+        throw e;
+    }
 }
 
-export function getUserById(id:number):User[]{
+export async function getUserById(id: number): Promise<User[]> {
     return daoGetUserById(id)
 }
 
-export function updateUser(id:number):User{
-    let user = daoGetUserById(id)
-    let single = user[0]
-    daoUpdateUser(single)
-    return single
+export async function updateUser(id: number): Promise<User> {
+    try {
+        let user = await daoGetUserById(id)
+        let single = user[0]
+        daoUpdateUser(single, id)
+        return single
+    } catch (e) {
+        throw e;
+    }
 }
 
-export function updateR(id:number, r:Reimbursement){
-    let reimbursement = daoFindRById(id)
-    doaUpdateR(reimbursement)
-    return reimbursement
+export function updateR(id: number, r: Reimbursement) {
+    return doaUpdateR(id, r)
 }

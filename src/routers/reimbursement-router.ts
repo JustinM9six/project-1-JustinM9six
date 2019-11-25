@@ -5,13 +5,13 @@ import { authorization } from '../middleware/authentication'
 
 export const reimbursementRouter = express.Router()
 
-reimbursementRouter.get('/status/:statusId', [authorization(['Admin', 'Finance-manager'])], (req, res)=>{
-    let id = +req.params.id
+reimbursementRouter.get('/status/:statusId', [authorization(['Admin', 'Finance-manager'])], async (req, res)=>{
+    let id = +req.params.statusId
     if(isNaN(id)){
         res.status(400).send(`Please enter a valid Status id`)
     }else{
         try{
-            let reimbursements = getRByStatus(id)
+            let reimbursements = await getRByStatus(id)
             res.json(reimbursements)
         }catch(e){
             res.status(e.status).send(e.message)
@@ -19,13 +19,13 @@ reimbursementRouter.get('/status/:statusId', [authorization(['Admin', 'Finance-m
     }
 })
 
-reimbursementRouter.get('/author/userId/:userId', [authorization(['Admin', 'Finance-manager'])], (req, res)=>{
-    let id = +req.params.id
+reimbursementRouter.get('/author/userId/:userId', [authorization(['Admin', 'Finance-manager'])], async (req, res)=>{
+    let id = +req.params.userId
     if(isNaN(id)){
         res.status(400).send(`Please enter a valid User id`)
     }else{
         try{
-            let reimbursements = getRByUser(id)
+            let reimbursements = await getRByUser(id)
             res.json(reimbursements)
         }catch(e){
             res.status(e.status).send(e.message)
@@ -33,7 +33,7 @@ reimbursementRouter.get('/author/userId/:userId', [authorization(['Admin', 'Fina
     }
 })
 
-reimbursementRouter.post('', (req, res)=>{
+reimbursementRouter.post('', [authorization(['Admin', 'Finance-manager', 'User'])], (req, res)=>{
     let{body} = req
     let{author} = body
     let newR = new Reimbursement(0, 0, 0, 0, 0, ``, 0, 0, 0)

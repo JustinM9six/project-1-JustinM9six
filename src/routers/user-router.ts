@@ -1,26 +1,26 @@
 import express from 'express'
 import { getAllUsers, getUserById, updateUser, updateR } from '../services/user-service'
-import { reimbursements } from '../database'
 import { authorization } from '../middleware/authentication'
+import { Reimbursement } from '../models/reimbursement'
 
 export const userRouter = express.Router()
 
-userRouter.get('', [authorization(['Admin', 'Finance-manager'])], (req, res)=>{
-    let users = getAllUsers()
-    if(users){
-        res.json(users)
-    }else{
-        res.sendStatus(500)
+userRouter.get('', [authorization(['Admin', 'Finance-manager'])], async (req, res)=>{
+    try {
+    let users = await getAllUsers()
+        res.json(users);
+    } catch (e) {
+        res.status(e.status).send(e.message);
     }
 })
 
-userRouter.get('/:id', [authorization(['Admin', 'Finanace-manager'])], (req, res)=>{
+userRouter.get('/:id', [authorization(['Admin', 'Finanace-manager'])], async (req, res)=>{
     let id = +req.params.id
     if(isNaN(id)){
         res.status(400).send(`Invalid user id`)
     }else{
         try{
-            let user = getUserById(id)
+            let user = await getUserById(id)
             res.json(user)
         }catch(e){
             res.status(e.status).send(e.message)
@@ -28,13 +28,13 @@ userRouter.get('/:id', [authorization(['Admin', 'Finanace-manager'])], (req, res
     }
 })
 
-userRouter.patch('', [authorization(['Admin'])], (req, res)=>{
+userRouter.patch('/:id', [authorization(['Admin'])], async (req, res)=>{
     let id = +req.params.id
     if(isNaN(id)){
         res.status(400).send(`Please enter a valid user id`)
     }else{
         try{
-            let user = updateUser(id)
+            let user = await updateUser(id)
             res.json(user)
         }catch(e){
             res.status(e.status).send(e.message)
@@ -42,12 +42,20 @@ userRouter.patch('', [authorization(['Admin'])], (req, res)=>{
     }
 })
 
-userRouter.patch('', [authorization(['Admin', 'Finance-manager'])], (req, res)=>{
+userRouter.patch('', [authorization(['Admin', 'Finance-manager'])], async (req, res)=>{
     let id = +req.params.id
-    let reimbursement = req.session.user
+    const { body } = req;
+    const reimburse = new Reimbursement(0, 0, 0 ,0, 0, ``, 0, 0, 0);
+    for (const key in reimburse) {
+        if (body[key] === undefined) {
+            reimburse[key] = undefined;
+        } else {
+            reimburse[key] = body[key];
+        }
+    }
     try{
-        let result = updateR(id, reimbursement)
-        res.json(result)
+        const result = await updateR(id, reimburse)
+        res.status(201).json(result)
     }catch(e){
         res.status(e.status).send(e.message)
     }

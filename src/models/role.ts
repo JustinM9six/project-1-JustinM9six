@@ -1,8 +1,8 @@
 export class Role{
-    roleId: number // primary key
+    role_id: number // primary key
     role: string // not null, unique
-    constructor(roleId:number, role:string){
-        this.roleId = roleId
+    constructor(role_id:number, role:string){
+        this.role_id = role_id
         this.role = role
     }
 }

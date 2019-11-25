@@ -1,26 +1,26 @@
-import { users } from "../database";
 import { User } from "../models/user";
 import { connectionPool } from ".";
 import { PoolClient } from "pg";
-import { multiUserDTOtoUser } from "../util/User-to-Object";
+import { multiUserDTOtoUser, userDTOtoUser } from "../util/User-to-Object";
 
-export async function daoGetUserLogin(username:string, password:string){
+export async function daoGetUserLogin(username:string, password:string): Promise<User>{
     let client: PoolClient;
     try{
         client = await connectionPool.connect();
-        const result = await client.query('SELECT * FROM Project_0.user natural join Project_0.user_roles naturla join Project_0.roles WHERE username = $1 AND password = $2',
+        
+        const result = await client.query(`SELECT * FROM project_0."user" natural join project_0.user_role natural join project_0."role" where username = $1 and password = $2`,
         [username, password]);
         if (result.rowCount === 0) {
-            throw 'Bad credentials';
-        } else {
-            return 
+            throw 'Invalid credentials';
+        } else {            
+            return userDTOtoUser(result.rows)
         }
     } catch (e) {
         console.log(e);
-        if(e === 'Bad credentials') {
+        if(e === 'Invalid credentials') {
             throw {
                 status: 401,
-                message: 'Bad credentials'
+                message: 'Invalid credentials'
             };
         } else {
             throw {
@@ -35,9 +35,9 @@ export async function daoGetUserLogin(username:string, password:string){
 
 export async function daoGetAllUsers():Promise<User[]>{
     let client:PoolClient
-    try{
+    try{        
         client = await connectionPool.connect()
-        let result = await client.query('SELECT * FROM Project_0.user natural join Project_0.user_role natural join Project_0.role')
+        let result = await client.query('SELECT * FROM project_0.user natural join project_0.user_role natural join project_0.role')
         return multiUserDTOtoUser(result.rows);
     } catch (e) {
         console.log(e);
@@ -50,25 +50,46 @@ export async function daoGetAllUsers():Promise<User[]>{
     }
 }
 
-export function daoGetUserById(id:number):User[]{
-    let u = []
-    let i = 0
-    for(let find of users){
-        if(find.userId === id){
-            u[i] = find
-            i++
+export async function daoGetUserById(id:number):Promise<User[]>{
+    let client: PoolClient;
+    try {
+        client = await connectionPool.connect();
+        const result = await client.query(`SELECT * FROM project_0."user" natural join project_0.user_role natural join project_0."role" WHERE user_id = $1`, [id]);
+        if (result.rowCount > 0) {
+            return multiUserDTOtoUser(result.rows);
+        } else {
+            throw 'There are no Users with this ID';
         }
-    }
-    if(u.length === 0){        
-        throw{
-            status: 404,
-            message: `There are no users with this id`
+    } catch (e) {
+        throw {
+            status: 500,
+            message: 'Internal Server Error'
         }
-    }else{
-        return u
+    } finally {
+        client && client.release();
     }
 }
 
-export function daoUpdateUser(find:User):User{
-    return null
+export async function daoUpdateUser(find:User, id:number):Promise<User>{
+    let client: PoolClient
+    let result
+    try {
+        client = await connectionPool.connect();
+        for(const key in find){
+            if (find[key] === undefined){
+                //let temp = await client.query(`SELECT $1 FROM project_0.reimbursement WHERE reimbursementId = $2`, [Object.keys(find[key]), id]);
+                //let result = await client.query(`UPDATE project_0.reimbursement SET $1 WHERE reimbursementId = $2`, [temp, id]);
+            } else {
+                result = await client.query(`UPDATE project_0.reimbursement SET $1 WHERE reimbursementId = $2`, [find[key], id]);
+            }
+        }
+        return result
+    } catch (e) {
+        throw {
+            status: 500,
+            message: `Internal Server Error`
+        }
+    } finally {
+        client && client.release();
+    }
 }

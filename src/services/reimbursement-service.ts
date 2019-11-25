@@ -1,14 +1,14 @@
 import { Reimbursement } from "../models/reimbursement";
 import { daoGetRByStatus, daoGetRByUser, daoSubmitR } from "../repositories/reimbursement-dao";
 
-export function getRByStatus(id:number):Reimbursement[]{
-    return daoGetRByStatus(id)
+export async function getRByStatus(id:number):Promise<Reimbursement[]>{
+    return await daoGetRByStatus(id)
 }
 
-export function getRByUser(id:number):Reimbursement[]{
-    return daoGetRByUser(id)
+export async function getRByUser(id:number):Promise<Reimbursement[]>{
+    return await daoGetRByUser(id)
 }
 
-export function submitR(r:Reimbursement){
-    return daoSubmitR(r)
+export async function submitR(r:Reimbursement):Promise<Reimbursement>{
+    return await daoSubmitR(r)
 }
