@@ -12,7 +12,7 @@ export function authorization(authRoles:string[]){
         if(valid){
             next()
         }else{
-            res.status(403).send(`Invalid credentials`)
+            res.status(403).send(`The incoming token has expired`)
         }
     }
 }

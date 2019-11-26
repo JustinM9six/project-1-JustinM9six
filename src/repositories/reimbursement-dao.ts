@@ -7,13 +7,15 @@ export async function daoGetRByStatus(id:number):Promise<Reimbursement[]>{
     let client: PoolClient;
     try {
         client = await connectionPool.connect();
-        const result = await client.query(`SELECT * FROM project_0.reimbursement r full outer join project_0.reimbursementStatus s on r.status = s.statusId full outer join project_0.reimbursementType t on r."type" = t.typeId WHERE r.status = $1;`, [id])
+        const result = await client.query(`SELECT * FROM project_0.reimbursement r full outer join project_0.reimbursement_status s on r.status = s.statusId full outer join project_0.reimbursement_type t on r."type" = t.typeId WHERE r.status = $1;`, [id])
         if(result.rowCount > 0) {
             return multireimburseDTOtoReimburse(result.rows);
         } else {
             throw 'There are no reimbursements with this status';
         }
     } catch (e) {
+        console.log(e);
+        
         throw{
             status: 500,
             message: 'Internal Server Error'
@@ -27,7 +29,7 @@ export async function daoGetRByUser(id:number):Promise<Reimbursement[]>{
     let client: PoolClient;
     try {
         client = await connectionPool.connect();
-        const result = await client.query(`SELECT * FROM project_0.reimbursement r full outer join project_0.reimbursementStatus s on r.status = s.statusId full outer join project_0.reimbursementType t on r."type" = t.typeId WHERE r.author = $1;`, [id])
+        const result = await client.query(`SELECT * FROM project_0.reimbursement r full outer join project_0.reimbursement_status s on r.status = s.statusId full outer join project_0.reimbursement_type t on r."type" = t.typeId WHERE r.author = $1;`, [id])
         if(result.rowCount > 0) {
             return multireimburseDTOtoReimburse(result.rows);
         } else {
@@ -50,9 +52,6 @@ export async function daoSubmitR(r:Reimbursement):Promise<Reimbursement> {
         await client.query(`BEGIN`);
         await client.query(`INSERT INTO project_0.reimbursement(reimbursement_id, author, amount, date_submitted, date_resolved, description, resolver, status, "type") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING reimbursement_id;`, 
         [r.reimbursement_id, r.author, r.amount, r.date_submitted, r.date_resolved, r.description, r.resolver, r.status, r.type]);
-            // await client.query(`INSERT INTO project_0.reimbursement_type VALUES($1, $2)`, [result.rows[0].reimbursement_id, r.type]);
-            // await client.query(`INSERT INTO project_0.reimbursement_status VALUES($1, $2)`, [result.rows[0].reimbursement_id, 1]);
-        //r.reimbursement_id = result.rows[0].reimbursement_id;
         await client.query(`COMMIT`);
         return r;
     } catch (e) {
@@ -66,7 +65,7 @@ export async function daoSubmitR(r:Reimbursement):Promise<Reimbursement> {
     }
 }
 
-export async function doaUpdateR(id: number, r:Reimbursement){
+export async function doaUpdateR(id: number, r:Reimbursement): Promise<Reimbursement>{
     let client: PoolClient
     client = await connectionPool.connect();
     try {
@@ -81,6 +80,7 @@ export async function doaUpdateR(id: number, r:Reimbursement){
             author = $2, amount = $3, date_submitted = $4, date_resolved = $5, description = $6, 
             resolver = $7, status = $8, type = $9 WHERE reimbursement_id = $10;`, 
             [r.reimbursement_id, r.author, r.amount, r.date_submitted, r.date_resolved, r.description, r.resolver, r.status, r.type, id]);
+            return r;
     } catch (e) {
         throw {            
             status: 500,

@@ -2,7 +2,7 @@ import express from 'express'
 import { getRByStatus, getRByUser, submitR } from '../services/reimbursement-service'
 import { Reimbursement } from '../models/reimbursement'
 import { authorization } from '../middleware/authentication'
-import { updateR } from '../services/user-service'
+import { updateR } from '../services/reimbursement-service'
 
 export const reimbursementRouter = express.Router()
 
@@ -46,21 +46,10 @@ reimbursementRouter.post('', [authorization(['Admin', 'Finance-manager', 'User']
             newR[key] = body[key]
         }
     }
-    // if(!author){
-    //     res.status(400).send(`Please include all reimbursement fields`)
-    // }
-    // for(let key in newR[`user`]){
-    //     if(author[key] === undefined){
-    //         res.status(400).send(`Please include all reimbursement fields`)
-    //         break;
-    //     }else{
-    //         newR[`user`][key] = author[key]
-    //     }
-    // }
     try{
         let result = await submitR(newR)
         if(result){
-            res.status(201).json(result)
+            res.status(201).json('created')
         }
     }catch(e){
         res.status(e.status).send(e.message)
