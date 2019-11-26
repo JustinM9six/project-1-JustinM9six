@@ -9,25 +9,26 @@ const app = express();
 app.use(bodyparser.json());
 app.use(sessionMiddleware);
 
-app.post(`/login`, async (req, res)=>{
-    let {username, password} = req.body
-    if(!username || !password){
-        res.status(400).send(`Please enter a username and password`)
+app.post(`/login`, async (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) {
+        res.status(400).send(`Please enter a username and password`);
+    } else {
+        try {
+            const user = await getEmployeeLogin(username, password);
+            req.session.user = user;
+            res.json(user);
+        } catch (e) {
+            res.status(e.status).send(e.message);
+        }
     }
-    try{
-        let user = await getEmployeeLogin(username, password)
-        req.session.user = user
-        res.json(user)
-    }catch(e){
-        res.status(e.status).send(e.message)
-    }
-})
+});
 
-app.use(`/user`, userRouter)
+app.use(`/user`, userRouter);
 
-app.use(`/reimbursement`, reimbursementRouter)
+app.use(`/reimbursement`, reimbursementRouter);
 
 app.listen(1101, () => {
     console.log(`app has started`);
-    
-})
+
+});

@@ -1,12 +1,14 @@
-import { UserDTO } from "../DTOs/user-DTO";
-import { User } from "../models/user";
-import { Role } from "../models/role";
+import { UserDTO } from '../DTOs/user-DTO';
+import { User } from '../models/user';
+import { Role } from '../models/role';
 
+//Convert a query into a single user Object
 export function userDTOtoUser(uDTO: UserDTO[]): User {
-    const roles = new Role(uDTO[0].role_id, uDTO[0].role);  
-    return new User(uDTO[0].user_id, uDTO[0].username, uDTO[0].password, uDTO[0].first_name, uDTO[0].last_name, uDTO[0].email, roles)
+    const roles = new Role(uDTO[0].role_id, uDTO[0].role);
+    return new User(uDTO[0].user_id, uDTO[0].username, uDTO[0].password, uDTO[0].first_name, uDTO[0].last_name, uDTO[0].email, roles);
 }
 
+//Convert a query into multiple users
 export function multiUserDTOtoUser(uDTO: UserDTO[]): User[] {
     let currentUser: UserDTO[] = [];
     const result: User[] = [];

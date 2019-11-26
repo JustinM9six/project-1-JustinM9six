@@ -5,7 +5,9 @@
   "main": "index.ts",
   "scripts": {
     "start": "nodemon --exec ts-node src/index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "tslint src/**/*.ts",
+    "lint:fix": "tslint src/**/*.ts --fix"
   },
   "repository": {
     "type": "git",
@@ -31,6 +33,7 @@
     "nodeman": "^1.1.2",
     "nodemon": "^2.0.1",
     "ts-node": "^8.5.2",
+    "tslint": "^5.20.1",
     "typescript": "^3.7.2"
   }
 }

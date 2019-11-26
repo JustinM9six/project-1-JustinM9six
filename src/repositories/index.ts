@@ -1,10 +1,10 @@
-import {Pool} from 'pg'
+import { Pool } from 'pg';
 
-export const connectionPool:Pool = new Pool({
-    user: process.env['GARDEN_BOOK_USERNAME'],
-    host: process.env['GARDEN_BOOK_HOST'],
-    database: process.env['GARDEN_BOOK_DATABASE'],
-    password: process.env['GARDEN_BOOK_PASSWORD'],
+export const connectionPool: Pool = new Pool({
+    user: process.env['DBEAVER_USERNAME'],
+    host: process.env['DBEAVER_HOST'],
+    database: process.env['DBEAVER_DATABASE'],
+    password: process.env['DBEAVER_PASSWORD'],
     port: 5432,
     max: 5,
-})
+});

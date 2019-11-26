@@ -1,3 +1,4 @@
+//A join between the user and roles tables
 export class UserDTO {
     user_id: number;
     username: string;
