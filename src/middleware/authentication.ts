@@ -4,8 +4,6 @@ export function authorization(authRoles: string[]) {
 
     return async (req, res, next) => {
         let valid = false;
-        console.log(req.session.user.role);
-        console.log(req.session.user.role.role);
 
         //Prompt the user to log in if they are not already
         if (!req.session.user) {

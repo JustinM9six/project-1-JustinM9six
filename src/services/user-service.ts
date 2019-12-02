@@ -23,7 +23,7 @@ export async function getUserById(id: number): Promise<User> {
 //Update a user
 export async function updateUser(id: number, u: User): Promise<User> {
     try {
-        return daoUpdateUser(id, u);
+        return await daoUpdateUser(id, u);
     } catch (e) {
         throw e;
     }

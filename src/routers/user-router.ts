@@ -39,7 +39,7 @@ userRouter.patch('', [authorization(['Admin']), async (req, res) => {
     //     res.status(400).send(`Please enter a valid user id`)
     // }
     //Creating a new user and then setting any unentered values to undefined
-    const user = new User(0, ``, ``, ``, ``, ``, new Role[0]);
+    const user = new User(0, ``, ``, ``, ``, new Role(0, ``));
     for (const key in user) {
         if (body[key] === undefined) {
             user[key] = undefined;

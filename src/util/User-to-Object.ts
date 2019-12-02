@@ -5,7 +5,7 @@ import { Role } from '../models/role';
 //Convert a query into a single user Object
 export function userDTOtoUser(uDTO: UserDTO[]): User {
     const roles = new Role(uDTO[0].role_id, uDTO[0].role);
-    return new User(uDTO[0].user_id, uDTO[0].username, uDTO[0].password, uDTO[0].first_name, uDTO[0].last_name, uDTO[0].email, roles);
+    return new User(uDTO[0].user_id, uDTO[0].username, uDTO[0].first_name, uDTO[0].last_name, uDTO[0].email, roles);
 }
 
 //Convert a query into multiple users
