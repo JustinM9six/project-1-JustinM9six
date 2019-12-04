@@ -8,22 +8,21 @@ export async function daoGetUserLogin(username: string, password: string): Promi
     let client: PoolClient;
     try {
         client = await connectionPool.connect();
-        const result = await client.query(`SELECT * FROM project_0."user" natural join project_0.user_role natural join project_0."role" where username = $1 and password = $2`,
-            [username, password]);
-        //const passwordHash = require(`password-hash`);
-        //const hashedPassword = passwordHash.generate(`password`);
-        //If no users are found that match the entered username or password
-        if (result.rowCount === 0) {
-            throw 'Invalid credentials';
-        } else {
+        const result = await client.query(`SELECT * FROM project_0."user" natural join project_0.user_role natural join project_0."role" where username = $1`,
+            [username]);
+        const passwordHash = require(`password-hash`);
+        const user = userDTOtoUser(result.rows);
+        if (passwordHash.verify(password, user.password)) {
             return userDTOtoUser(result.rows);
-        }
-    } catch (e) {
-        if (e === 'Invalid credentials') {
+        } else {
             throw {
                 status: 401,
                 message: 'Invalid credentials'
             };
+        }
+    } catch (e) {
+        if (e.status === 401) {
+            throw e;
         } else {
             throw {
                 status: 500,
