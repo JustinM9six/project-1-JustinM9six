@@ -1,7 +1,38 @@
-import React from 'react';
+import React, { SyntheticEvent } from 'react';
 import { Form, Row, Col, FormGroup, Label, Input, Button } from 'reactstrap';
+import { project1Login } from '../../remote/Project1User';
 
-export class Login extends React.Component {
+export class Login extends React.Component<any, any> {
+    constructor(props: any) {
+        super(props)
+        this.state = {
+            username:'',
+            password:''
+        }
+    }
+
+    updateUsername = (e:any) => {
+        this.setState({
+            ...this.state,
+            username: e.target.value
+        })
+    }
+
+    updatePassword = (e:any) => {
+        this.setState({
+            ...this.state,
+            password: e.target.value
+        })
+    }
+
+    submitLogin = async (e:SyntheticEvent) => {
+        e.preventDefault()
+        let user = await project1Login(this.state.username, this.state.password);
+        this.setState({
+            ...this.state,
+            user
+        })
+    }
     render() {
         return (
             <div>
